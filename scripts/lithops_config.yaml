@@ -1,0 +1,12 @@
+lithops: 
+    storage_bucket : <STORAGE_BUCKET>
+    mode: localhost
+    storage: ibm_cos
+    data_cleaner: False
+    exclude_modules: ["ibm_botocore","ibm_boto3"]
+
+ibm_cos:
+    api_key: <IBM Cloud Object Storage API KEY>    
+    access_key : <IBM Cloud Object Storage ACCESS KEY>  # Optional
+    region: <IBM Cloud Object Storage Region, e.g. us-east >
+     
