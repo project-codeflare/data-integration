@@ -30,3 +30,8 @@ More details on the `cluster.yaml` file can be found [here](https://docs.ray.io/
 We run a simple test accessing local image CSV file and count number of lines
 [TO-DO]
 
+## Big Data processing
+
+## Additional material
+[Accelerating object storage processing for Ray framework](https://medium.com/p/f581863c7662)
+
