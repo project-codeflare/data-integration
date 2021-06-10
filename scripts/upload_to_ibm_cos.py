@@ -1,25 +1,24 @@
-'''
-Created on 15 Mar 2021
+#
+# (C) Copyright IBM Corp. 2021
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-@author: gilv
-'''
-#http://vis-www.cs.umass.edu/lfw/lfw.tgz
-#http://vis-www.cs.umass.edu/lfw/lfw-a.tgz
-
-import urllib.request
-import yaml
-import requests
-import json
-import io
 from multiprocessing import Process
 import ibm_boto3
 from ibm_botocore.client import Config
-from ibm_botocore.client import ClientError
 import os
 import glob
-import random
-import string
-
 
 ENDPOINT = '<Endpoint to the IBM Cloud Object Storage'
 
@@ -28,9 +27,7 @@ SECRET_KEY = '<secret key to IBM Cloud Object Storage>'
 #alternatively use API KEY
 API_KEY = None
 
-BUCKET = '<your bucket in the IBM Cloud Object Storage>'
-
-def get_ibm_cos_client(config):
+def get_ibm_cos_client():
 
     if API_KEY == None:
         print("Using access_key and secret_key")
@@ -50,30 +47,34 @@ def get_ibm_cos_client(config):
                             endpoint_url=ENDPOINT)
 
 
-def generate_big_random_letters(size):
-    """
-    generate big random letters/alphabets to a file
-    :param filename: the filename
-    :param size: the size in bytes
-    :return: void
-    """
-    chars = ''.join([random.choice(string.ascii_letters) for i in range(size)])
-    return chars
+def copy(bucket, target_key, src):
+    print('Copying from {} to {}'.format(src, target_key))
+    f = open(src, "rb")
+    r = cos_client.put_object(Bucket=bucket, Key=target_key, Body=f)
+    print('Copy completed for {}'.format(target_key))
 
 if __name__ == "__main__":
 
-    target_bucket = "gilvdata"
-    os.environ['LITHOPS_CONFIG_FILE'] = '/Users/gilv/Dev/lithops/default_config.yaml'
-    with open(os.environ['LITHOPS_CONFIG_FILE']) as file:
-        config = yaml.full_load(file)
+    src = 'local path to images'
+    # folder in COS. All images will be copied into bucket/<target_key_prefix>/imaage
+    target_bucket = '<your IBM Cloud Object Storage bucket'
+    target_key_prefix = 'myimages'
+
+    cos_client = get_ibm_cos_client()
+    src_paths = glob.glob(os.path.join(src, '*.*'))
+
+    total = 0
+    procs = []
+    for index, src_path in enumerate(src_paths):
+        total = total + 1
+        tatget_output_dir = os.path.join(target_key_prefix, '', os.path.basename(os.path.dirname(src_path)))
+        output_path = os.path.join(tatget_output_dir, os.path.basename(src_path))
+        copy(output_path, src_path)
+        p = Process(target=copy, args=(target_bucket, output_path, src_path))
+        p.start()
+        procs.append(p)
     
-    cos_client = get_ibm_cos_client(config)
-    chars = generate_big_random_letters(1024*1024*10)
-     
-    for ind in range(500):
-        target_key = 'test/txtfile-' + str(ind) +  '.txt'
-        print (target_key)
-        fruit = random.choice(['oranges', 'grapefruits', 'mandarins', 'bananas'])
-        data = fruit + ' ' + chars
-        cos_client.put_object(Bucket=config['lithops']['storage_bucket'], Key=target_key, 
-                              Body=data.encode('utf-8'))
+    for p in procs:
+        p.join()
+    print('All done! Total {}'.format(total))
+
