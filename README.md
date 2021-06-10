@@ -1,4 +1,4 @@
-# Lithops4Ray - Object Storage data processing for Ray framework
+# Lithops4Ray - Object Storage data processing for Ray
 
 ## Background
 
