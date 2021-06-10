@@ -1,7 +1,5 @@
 # Lithops4Ray - Object Storage data processing for Ray
 
-## Background
-
 Object storage is a popular platform for persisting large amounts of unstructured data. The goal of 
 Lithops4Ray project is to enable [Ray](https://ray.io) tasks or actors to access object data without forcing developers to write additional boiler plate code or address advanced aspects of accessing Big Data. Lithops4Ray supports almost any object storage platforms, like IBM Cloud Object Storage, Amazon S3, Azure, Google, CEPH, and so on.
 
