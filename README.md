@@ -31,19 +31,17 @@ We run a simple example accessing CSV files and find a string match. Folder `exa
 	import ray
 	import csv
 
-	def read_csv(obj):
+	def read_csv(obj, name):
 	    buff = io.StringIO(obj.data_stream.read().decode())
 	    reader = csv.reader(buff, delimiter=',')
 	    for row in reader:
-	        print(row)
-	        if 'John' in row[0]:
-	            return'John is found in {}'.format(obj.key)
-	    return 'John not found in {}'.format(obj.key) 
-	
+	        if name in row[0]:
+	            return'{} is found in {}'.format(name, obj.key)
+	    return '{} not found in {}'.format(name, obj.key) 
+
 	@ray.remote
 	def test_csv(data):
-	    res =  data.result()
-	    return res
+	    return data.result()	
 
 	if __name__ == '__main__':
     
